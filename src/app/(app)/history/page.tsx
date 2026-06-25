@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { sessions } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { SessionCard } from "@/components/session/SessionCard";
+import { History, Dumbbell } from "lucide-react";
 import Link from "next/link";
 
 export default async function HistoryPage() {
@@ -27,32 +28,45 @@ export default async function HistoryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold text-zinc-100">Historial</h1>
+    <div className="flex flex-col gap-5">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center">
+          <History size={16} className="text-emerald-400" />
+        </div>
+        <div>
+          <h1 className="text-xl font-black text-slate-900">Historial</h1>
+          {allSessions.length > 0 && (
+            <p className="text-xs text-slate-400">{allSessions.length} sesión{allSessions.length !== 1 ? "es" : ""} registradas</p>
+          )}
+        </div>
+      </div>
 
       {queryError ? (
-        <div className="rounded-xl bg-red-950 border border-red-800 p-4 text-xs text-red-300 font-mono break-all">
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-xs text-red-600 font-mono break-all">
           {queryError}
         </div>
       ) : allSessions.length === 0 ? (
-        <div className="text-center py-16 text-zinc-600">
-          <p className="text-4xl mb-3">🏋️</p>
-          <p className="text-sm mb-2">Todavía no hay sesiones registradas.</p>
-          <Link href="/record" className="text-indigo-400 text-sm hover:underline">
-            Registra tu primer entrenamiento
+        <div className="bg-white rounded-2xl p-10 text-center shadow-sm border border-slate-100">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <Dumbbell size={24} className="text-slate-400" />
+          </div>
+          <p className="text-sm font-semibold text-slate-900 mb-1">Sin sesiones aún</p>
+          <p className="text-xs text-slate-400 mb-5">Registra tu primer entrenamiento para verlo aquí.</p>
+          <Link
+            href="/record"
+            className="inline-flex items-center gap-1.5 bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-emerald-400 transition-colors"
+          >
+            + Registrar entrenamiento
           </Link>
         </div>
       ) : (
-        <>
-          <p className="text-xs text-zinc-500">{allSessions.length} sesión{allSessions.length !== 1 ? "es" : ""} en total</p>
-          <div className="flex flex-col gap-3">
-            {allSessions.map((s) => (
-              <SessionCard key={s.id} session={s as any} />
-            ))}
-          </div>
-        </>
+        <div className="flex flex-col gap-3">
+          {allSessions.map((s) => (
+            <SessionCard key={s.id} session={s as any} />
+          ))}
+        </div>
       )}
-
     </div>
   );
 }

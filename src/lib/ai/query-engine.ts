@@ -1,13 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db/client";
 import { sessions, workoutSets, exercises, personalRecords } from "@/lib/db/schema";
 import { eq, desc, gte, and, inArray } from "drizzle-orm";
 import { subDays, subMonths, subWeeks } from "date-fns";
 import type { UserContext } from "@/lib/memory/user-context";
-
-const anthropicAvailable =
-  process.env.ANTHROPIC_API_KEY &&
-  !process.env.ANTHROPIC_API_KEY.includes("...");
+import { llmComplete, getProvider } from "./llm";
 
 export async function answerQuery(
   query: string,
@@ -15,25 +11,15 @@ export async function answerQuery(
   ctx: UserContext
 ): Promise<string> {
   const data = await gatherQueryData(query, userId);
+  const provider = getProvider();
 
-  if (anthropicAvailable) {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 512,
-      system: `Eres un asistente de fitness que responde preguntas sobre el historial de entrenamiento del usuario.
+  if (provider !== "local") {
+    const system = `Eres un asistente de fitness que responde preguntas sobre el historial de entrenamiento del usuario.
 Responde siempre en español, de forma concisa y directa. Usa emojis con moderación.
-Perfil del usuario: ${JSON.stringify(ctx)}`,
-      messages: [
-        {
-          role: "user",
-          content: `Pregunta: "${query}"\n\nDatos de entrenamiento disponibles:\n${JSON.stringify(data, null, 2)}`,
-        },
-      ],
-    });
-    return response.content[0].type === "text"
-      ? response.content[0].text
-      : "No pude procesar tu consulta.";
+Perfil del usuario: ${JSON.stringify(ctx)}`;
+    const user = `Pregunta: "${query}"\n\nDatos de entrenamiento disponibles:\n${JSON.stringify(data, null, 2)}`;
+    const answer = await llmComplete(system, user);
+    if (answer) return answer;
   }
 
   return answerLocal(query, data, ctx);

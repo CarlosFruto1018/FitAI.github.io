@@ -1,5 +1,6 @@
 "use client";
 
+import { Mic, Square, RotateCcw } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { cn } from "@/lib/utils";
 
@@ -30,62 +31,78 @@ export function AudioRecorder({ onRecorded, disabled }: AudioRecorderProps) {
 
   if (!supported) {
     return (
-      <p className="text-sm text-zinc-400 text-center px-4">
-        Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.
-      </p>
+      <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center">
+        <p className="text-sm text-amber-700">Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.</p>
+      </div>
     );
   }
 
-  return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      <button
-        onClick={handleToggle}
-        disabled={disabled || state === "processing"}
-        className={cn(
-          "w-24 h-24 rounded-full flex items-center justify-center",
-          "text-4xl transition-all duration-150 select-none",
-          "focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400",
-          (state === "idle" || state === "done") &&
-            !disabled &&
-            "bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/30",
-          state === "recording" &&
-            "bg-red-500 scale-110 shadow-[0_0_0_10px_rgba(239,68,68,0.2)] animate-pulse",
-          disabled && "opacity-40 cursor-not-allowed bg-zinc-700"
-        )}
-        aria-label={state === "recording" ? "Detener grabación" : state === "done" ? "Grabar de nuevo" : "Iniciar grabación"}
-      >
-        {state === "recording" ? "⏹" : "🎙️"}
-      </button>
+  const isRecording = state === "recording";
+  const isDone = state === "done";
 
-      <p className="text-xs text-zinc-400 text-center">
-        {(state === "idle" || state === "done") && "Toca para hablar"}
-        {state === "recording" && "Escuchando... toca para detener"}
+  return (
+    <div className="flex flex-col items-center gap-6 w-full py-4">
+      {/* Mic button */}
+      <div className="relative flex items-center justify-center">
+        {isRecording && (
+          <>
+            <span className="absolute w-28 h-28 rounded-full bg-red-100 animate-ping opacity-50" />
+            <span className="absolute w-24 h-24 rounded-full bg-red-100 animate-ping opacity-30" style={{ animationDelay: "150ms" }} />
+          </>
+        )}
+        <button
+          onClick={handleToggle}
+          disabled={disabled || state === "processing"}
+          className={cn(
+            "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400",
+            isRecording
+              ? "bg-red-500 shadow-lg shadow-red-300/50 scale-110"
+              : "bg-slate-900 hover:bg-slate-700 shadow-lg shadow-slate-900/20",
+            disabled && "opacity-40 cursor-not-allowed"
+          )}
+          aria-label={isRecording ? "Detener grabación" : isDone ? "Grabar de nuevo" : "Iniciar grabación"}
+        >
+          {isRecording
+            ? <Square size={22} className="text-white" fill="white" />
+            : <Mic size={22} className="text-white" />
+          }
+        </button>
+      </div>
+
+      <p className="text-sm text-slate-500 text-center">
+        {state === "idle" && "Toca para hablar"}
+        {state === "recording" && <span className="text-red-500 font-medium">Escuchando... toca para detener</span>}
+        {state === "processing" && "Procesando..."}
+        {state === "done" && !transcript && "No se detectó audio, intenta de nuevo"}
       </p>
 
-      {transcript && state === "done" && (
-        <div className="w-full flex flex-col gap-2">
-          <div className="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-4 py-3 text-sm text-zinc-100">
+      {transcript && isDone && (
+        <div className="w-full flex flex-col gap-3">
+          <div className="w-full rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm text-slate-800 leading-relaxed">
             {transcript}
           </div>
           <div className="flex gap-2">
             <button
               onClick={handleConfirm}
               disabled={disabled}
-              className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-40"
+              className="flex-1 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold transition-colors disabled:opacity-40 shadow-sm shadow-emerald-200"
             >
-              Guardar
+              Guardar entrenamiento
             </button>
             <button
               onClick={reset}
-              className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm transition-colors"
+              className="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors flex items-center justify-center"
+              aria-label="Repetir"
             >
-              Repetir
+              <RotateCcw size={16} />
             </button>
           </div>
         </div>
       )}
 
-      {error && <p className="text-xs text-red-400 text-center px-4">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-500 bg-red-50 rounded-xl px-4 py-2 text-center w-full">{error}</p>
+      )}
     </div>
   );
 }

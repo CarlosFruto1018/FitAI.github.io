@@ -20,17 +20,17 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#4f46e5",
+  themeColor: "#22c55e",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es">
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${geist.className} bg-zinc-950 antialiased`}>{children}</body>
+      <body className={`${geist.className} bg-slate-50 antialiased`}>{children}</body>
     </html>
   );
 }

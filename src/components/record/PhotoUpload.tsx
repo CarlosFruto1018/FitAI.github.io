@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Camera, X, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PhotoUploadProps {
@@ -15,46 +16,56 @@ export function PhotoUpload({ onSelected, disabled }: PhotoUploadProps) {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const url = URL.createObjectURL(file);
     setPreview(url);
     onSelected(file);
-
-    // Reset so the same file can be selected again
     e.target.value = "";
   }
 
+  function handleClear() {
+    setPreview(null);
+  }
+
   return (
-    <div className="flex flex-col items-center gap-3">
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        disabled={disabled}
-        className={cn(
-          "w-24 h-24 rounded-full flex items-center justify-center",
-          "text-4xl transition-all duration-150",
-          "bg-emerald-700 hover:bg-emerald-600 shadow-lg shadow-emerald-700/30",
-          "focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400",
-          disabled && "opacity-40 cursor-not-allowed"
-        )}
-        aria-label="Subir foto del entrenamiento"
-      >
-        {preview ? "✅" : "📸"}
-      </button>
-
-      {preview && (
-        <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-zinc-700">
-          <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+    <div className="flex flex-col gap-4 w-full">
+      {preview ? (
+        <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+          <img src={preview} alt="Preview" className="w-full h-56 object-cover" />
           <button
-            onClick={() => setPreview(null)}
-            className="absolute top-0.5 right-0.5 bg-black/60 rounded-full w-5 h-5 text-xs flex items-center justify-center text-white"
+            onClick={handleClear}
+            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+            aria-label="Eliminar foto"
           >
-            ✕
+            <X size={14} className="text-slate-700" />
           </button>
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/40 to-transparent p-3">
+            <p className="text-white text-xs font-medium">FitAI analizará esta imagen</p>
+          </div>
         </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={disabled}
+          className={cn(
+            "w-full h-48 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-3 transition-all",
+            "hover:border-emerald-300 hover:bg-emerald-50/50",
+            disabled && "opacity-40 cursor-not-allowed"
+          )}
+        >
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Camera size={24} className="text-slate-400" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-slate-700">Sube una foto</p>
+            <p className="text-xs text-slate-400 mt-0.5">Pizarra, máquina o nota del gym</p>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full">
+            <ImagePlus size={12} />
+            Cámara o galería
+          </div>
+        </button>
       )}
-
-      <p className="text-xs text-zinc-400 text-center">Cámara o galería</p>
 
       <input
         ref={inputRef}

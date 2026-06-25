@@ -1,5 +1,6 @@
-import { formatDate, formatDuration, formatWeight, cn } from "@/lib/utils";
+import { formatDate, formatDuration, formatWeight } from "@/lib/utils";
 import type { Session, WorkoutSet, Exercise } from "@/lib/db/schema";
+import { Dumbbell, Clock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 type SetWithExercise = WorkoutSet & { exercise: Exercise | null };
@@ -10,7 +11,6 @@ interface SessionCardProps {
 }
 
 export function SessionCard({ session }: SessionCardProps) {
-  // Group sets by exercise
   const byExercise = session.workoutSets.reduce<Record<string, SetWithExercise[]>>(
     (acc, s) => {
       const name = s.exercise?.displayName ?? s.exerciseName ?? "Ejercicio";
@@ -23,28 +23,24 @@ export function SessionCard({ session }: SessionCardProps) {
   const exercises = Object.entries(byExercise);
 
   return (
-    <Link href={`/session/${session.id}`} className="block">
-      <div
-        className={cn(
-          "rounded-2xl border p-4 flex flex-col gap-3 transition-colors",
-          "bg-zinc-900 border-zinc-800 hover:border-zinc-600"
-        )}
-      >
+    <Link href={`/session/${session.id}`} className="block group">
+      <div className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col gap-3 transition-all hover:shadow-md hover:shadow-slate-200/60 hover:border-slate-200">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-zinc-500">{formatDate(session.startedAt)}</p>
-            <p className="text-sm font-semibold text-zinc-200 mt-0.5">
+            <p className="text-xs text-slate-400 font-medium">{formatDate(session.startedAt)}</p>
+            <p className="text-sm font-semibold text-slate-900 mt-0.5">
               {exercises.length} ejercicio{exercises.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <div className="flex gap-2 text-right">
+          <div className="flex items-center gap-2">
             {session.totalVolumeKg && (
-              <Chip label={formatWeight(session.totalVolumeKg)} sublabel="volumen" />
+              <Chip icon={<Dumbbell size={11} />} label={formatWeight(session.totalVolumeKg)} sublabel="vol." />
             )}
             {session.durationMin && (
-              <Chip label={formatDuration(session.durationMin)} sublabel="duración" />
+              <Chip icon={<Clock size={11} />} label={formatDuration(session.durationMin)} sublabel="min" />
             )}
+            <ChevronRight size={15} className="text-slate-300 group-hover:text-slate-400 transition-colors ml-1" />
           </div>
         </div>
 
@@ -55,23 +51,23 @@ export function SessionCard({ session }: SessionCardProps) {
             const totalReps = sets.reduce((a, s) => a + (s.reps ?? 0), 0);
             return (
               <div key={name} className="flex items-center justify-between">
-                <span className="text-sm text-zinc-300 truncate max-w-[60%]">{name}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-sm text-slate-700 truncate max-w-[60%]">{name}</span>
+                <span className="text-xs text-slate-400">
                   {sets.length} series
-                  {maxWeight > 0 && ` · ${maxWeight}kg`}
+                  {maxWeight > 0 && ` · ${maxWeight} kg`}
                   {totalReps > 0 && ` · ${totalReps} reps`}
                 </span>
               </div>
             );
           })}
           {exercises.length > 5 && (
-            <p className="text-xs text-zinc-600">+{exercises.length - 5} más</p>
+            <p className="text-xs text-slate-400">+{exercises.length - 5} más</p>
           )}
         </div>
 
         {/* Summary */}
         {session.summaryText && (
-          <p className="text-xs text-zinc-500 border-t border-zinc-800 pt-2 line-clamp-2">
+          <p className="text-xs text-slate-400 border-t border-slate-50 pt-2 line-clamp-2">
             {session.summaryText}
           </p>
         )}
@@ -80,11 +76,14 @@ export function SessionCard({ session }: SessionCardProps) {
   );
 }
 
-function Chip({ label, sublabel }: { label: string; sublabel: string }) {
+function Chip({ icon, label, sublabel }: { icon: React.ReactNode; label: string; sublabel: string }) {
   return (
-    <div className="text-center bg-zinc-800 rounded-lg px-2.5 py-1.5">
-      <p className="text-xs font-semibold text-zinc-200">{label}</p>
-      <p className="text-[10px] text-zinc-500">{sublabel}</p>
+    <div className="flex items-center gap-1 bg-slate-50 rounded-lg px-2.5 py-1.5">
+      <span className="text-slate-400">{icon}</span>
+      <div>
+        <p className="text-xs font-semibold text-slate-700 leading-none">{label}</p>
+        <p className="text-[9px] text-slate-400 leading-none mt-0.5">{sublabel}</p>
+      </div>
     </div>
   );
 }

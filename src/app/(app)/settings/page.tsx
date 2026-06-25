@@ -17,19 +17,23 @@ export default async function SettingsPage() {
     await signOut({ redirectTo: "/login" });
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold text-zinc-100">Ajustes</h1>
+  const user = session!.user!;
 
-      {/* Profile info */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-4">
-        {session!.user?.image && (
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Header + avatar */}
+      <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-5 flex items-center gap-4 shadow-xl shadow-slate-900/20">
+        {user.image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={session!.user.image} alt="" className="w-12 h-12 rounded-full" />
+          <img src={user.image} alt="" className="w-14 h-14 rounded-2xl ring-2 ring-white/10" />
+        ) : (
+          <div className="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center text-white text-xl font-black">
+            {user.name?.[0]?.toUpperCase() ?? "A"}
+          </div>
         )}
         <div>
-          <p className="text-sm font-semibold text-zinc-100">{session!.user?.name}</p>
-          <p className="text-xs text-zinc-500">{session!.user?.email}</p>
+          <p className="text-base font-bold text-white">{user.name}</p>
+          <p className="text-sm text-white/50">{user.email}</p>
         </div>
       </div>
 

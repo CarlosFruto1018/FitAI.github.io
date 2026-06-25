@@ -1,9 +1,10 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
-import { sessions, workoutSets, exercises } from "@/lib/db/schema";
+import { sessions, workoutSets } from "@/lib/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/utils";
+import { ArrowLeft, Dumbbell, Hash, Weight, FileText } from "lucide-react";
 import Link from "next/link";
 
 export default async function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,7 +24,6 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
 
   if (!session || session.userId !== userId) notFound();
 
-  // Group sets by exercise name
   const byExercise: Record<string, typeof session.workoutSets> = {};
   for (const s of session.workoutSets) {
     const name = s.exercise?.displayName ?? s.exerciseName ?? "Ejercicio";
@@ -31,53 +31,80 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
     byExercise[name].push(s);
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <Link href="/history" className="text-zinc-400 hover:text-zinc-200 text-sm">← Historial</Link>
-      </div>
+  const exerciseCount = Object.keys(byExercise).length;
 
-      <div>
-        <h1 className="text-xl font-bold text-zinc-100">Sesión</h1>
-        <p className="text-sm text-zinc-500 mt-1">{formatDate(session.startedAt)}</p>
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Back */}
+      <Link
+        href="/history"
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors w-fit"
+      >
+        <ArrowLeft size={15} />
+        Historial
+      </Link>
+
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
+          <Dumbbell size={17} className="text-emerald-400" />
+        </div>
+        <div>
+          <h1 className="text-xl font-black text-slate-900">Sesión</h1>
+          <p className="text-xs text-slate-400 mt-0.5">{formatDate(session.startedAt)}</p>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {session.totalVolumeKg && (
-          <div className="flex-1 bg-zinc-900 rounded-xl p-3 text-center">
-            <p className="text-lg font-bold text-zinc-100">{session.totalVolumeKg} kg</p>
-            <p className="text-xs text-zinc-500">volumen total</p>
-          </div>
+          <StatCard value={`${Math.round(session.totalVolumeKg).toLocaleString("es")} kg`} label="Volumen" />
         )}
-        <div className="flex-1 bg-zinc-900 rounded-xl p-3 text-center">
-          <p className="text-lg font-bold text-zinc-100">{Object.keys(byExercise).length}</p>
-          <p className="text-xs text-zinc-500">ejercicios</p>
-        </div>
-        <div className="flex-1 bg-zinc-900 rounded-xl p-3 text-center">
-          <p className="text-lg font-bold text-zinc-100">{session.workoutSets.length}</p>
-          <p className="text-xs text-zinc-500">series</p>
-        </div>
+        <StatCard value={String(exerciseCount)} label={exerciseCount === 1 ? "Ejercicio" : "Ejercicios"} />
+        <StatCard value={String(session.workoutSets.length)} label="Series" />
       </div>
 
       {/* Exercises */}
       <div className="flex flex-col gap-3">
         {Object.entries(byExercise).map(([name, sets]) => (
-          <div key={name} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-zinc-200 mb-3">{name}</p>
-            <div className="flex flex-col gap-1.5">
+          <div key={name} className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm shadow-slate-200/50">
+            {/* Exercise header */}
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-50">
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <Dumbbell size={13} className="text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold text-slate-900">{name}</p>
+              <span className="ml-auto text-xs text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">
+                {sets.length} series
+              </span>
+            </div>
+
+            {/* Sets table header */}
+            <div className="grid grid-cols-4 px-4 py-2 bg-slate-50/50">
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                <Hash size={9} /> Serie
+              </span>
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">Reps</span>
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                <Weight size={9} /> Peso
+              </span>
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">RPE</span>
+            </div>
+
+            {/* Sets */}
+            <div className="divide-y divide-slate-50">
               {sets.map((s, i) => (
-                <div key={s.id} className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-500 w-8">#{i + 1}</span>
-                  <span className="text-zinc-300 flex-1">
-                    {s.reps ? `${s.reps} reps` : ""}
-                    {s.weightKg ? ` · ${s.weightKg} kg` : ""}
-                    {s.durationSec ? ` · ${Math.round(s.durationSec / 60)}min` : ""}
-                    {s.distanceM ? ` · ${s.distanceM}m` : ""}
+                <div key={s.id} className="grid grid-cols-4 px-4 py-2.5 items-center">
+                  <span className="text-sm font-medium text-slate-400">{i + 1}</span>
+                  <span className="text-sm text-slate-700">
+                    {s.reps ? `${s.reps}` : s.durationSec ? `${Math.round(s.durationSec / 60)}min` : "—"}
                   </span>
-                  {s.rpe && (
-                    <span className="text-xs text-zinc-500">RPE {s.rpe}</span>
-                  )}
+                  <span className="text-sm font-semibold text-slate-900">
+                    {s.weightKg ? `${s.weightKg} kg` : s.distanceM ? `${s.distanceM}m` : "—"}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {s.rpe ? `${s.rpe}/10` : "—"}
+                  </span>
                 </div>
               ))}
             </div>
@@ -85,12 +112,25 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
         ))}
       </div>
 
+      {/* Summary */}
       {session.summaryText && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Resumen</p>
-          <p className="text-sm text-zinc-300">{session.summaryText}</p>
+        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm shadow-slate-200/50">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText size={14} className="text-slate-400" />
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Resumen</p>
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">{session.summaryText}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-3 text-center shadow-sm shadow-slate-200/50">
+      <p className="text-lg font-black text-slate-900 leading-none">{value}</p>
+      <p className="text-[11px] text-slate-400 mt-1">{label}</p>
     </div>
   );
 }

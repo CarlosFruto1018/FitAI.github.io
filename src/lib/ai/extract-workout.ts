@@ -1,8 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import type { UserContext } from "@/lib/memory/user-context";
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { llmComplete, getProvider } from "./llm";
 
 // ---------------------------------------------------------------------------
 // Output schema
@@ -41,28 +39,18 @@ export type ExtractedWorkout = z.infer<typeof ExtractedWorkoutSchema>;
 // ---------------------------------------------------------------------------
 import { extractWorkoutLocal } from "./extract-workout-local";
 
-const anthropicAvailable =
-  process.env.ANTHROPIC_API_KEY &&
-  !process.env.ANTHROPIC_API_KEY.includes("...");
-
 export async function extractWorkoutData(
   input: string,
   userCtx: UserContext
 ): Promise<ExtractedWorkout> {
-  if (!anthropicAvailable) {
+  const provider = getProvider();
+
+  if (provider === "local") {
     return extractWorkoutLocal(input);
   }
 
   const systemPrompt = buildSystemPrompt(userCtx);
-
-  const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: [{ role: "user", content: input }],
-  });
-
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const text = await llmComplete(systemPrompt, input);
 
   const jsonMatch = text.match(/```json\n?([\s\S]*?)\n?```/) ?? text.match(/(\{[\s\S]*\})/);
   const raw = jsonMatch ? jsonMatch[1] : text;
@@ -71,13 +59,8 @@ export async function extractWorkoutData(
     const parsed = JSON.parse(raw);
     return ExtractedWorkoutSchema.parse(parsed);
   } catch {
-    return {
-      intent: "unknown",
-      exercises: [],
-      session_metrics: { duration_min: null, calories: null, heart_rate_avg: null },
-      query: null,
-      raw_message: input,
-    };
+    // LLM returned something unparseable — fall back to local extractor
+    return extractWorkoutLocal(input);
   }
 }
 

@@ -3,34 +3,42 @@
 import { useState, useTransition } from "react";
 import { AudioRecorder } from "./AudioRecorder";
 import { PhotoUpload } from "./PhotoUpload";
+import { Mic, Type, Camera, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Tab = "audio" | "photo" | "text";
+type Tab = "text" | "audio" | "photo";
+
+interface ExtractedExercise {
+  alias: string;
+  sets: { reps: number | null; weight_kg: number | null; duration_sec: number | null }[];
+}
 
 interface RecordResult {
   sessionId: string;
   status: "processed" | "queued";
-  extracted?: unknown;
+  extracted?: { exercises: ExtractedExercise[]; intent: string };
 }
 
 interface RecordPageProps {
   onResult?: (result: RecordResult) => void;
 }
 
-export function RecordPage({ onResult }: RecordPageProps) {
-  const [tab, setTab] = useState<Tab>("audio");
-  const [textInput, setTextInput] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "text", label: "Texto", icon: <Type size={14} /> },
+  { id: "audio", label: "Voz", icon: <Mic size={14} /> },
+  { id: "photo", label: "Foto", icon: <Camera size={14} /> },
+];
 
-  // ---------------------------------------------------------------------------
-  // Upload helper — gets presigned URL then uploads to R2
-  // ---------------------------------------------------------------------------
+export function RecordPage({ onResult }: RecordPageProps) {
+  const [tab, setTab] = useState<Tab>("text");
+  const [textInput, setTextInput] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const [result, setResult] = useState<RecordResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   async function uploadMedia(blob: Blob, type: "audio" | "image"): Promise<{ storageKey: string; publicUrl: string }> {
     const mimeType = blob.type;
-    const presignRes = await fetch(
-      `/api/input/presign?type=${type}&mimeType=${encodeURIComponent(mimeType)}`
-    );
+    const presignRes = await fetch(`/api/input/presign?type=${type}&mimeType=${encodeURIComponent(mimeType)}`);
     const presignData = await presignRes.json();
     if (!presignRes.ok) {
       throw new Error(typeof presignData.error === "string" ? presignData.error : "Error al obtener URL de subida");
@@ -40,179 +48,159 @@ export function RecordPage({ onResult }: RecordPageProps) {
     return { storageKey, publicUrl };
   }
 
-  // ---------------------------------------------------------------------------
-  // Submit handlers
-  // ---------------------------------------------------------------------------
-  async function handleAudio(transcript: string) {
-    if (!transcript.trim()) return;
-    setStatus("Analizando...");
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/input", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "text", content: transcript }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          const msg = typeof err.error === "string" ? err.error : JSON.stringify(err.error ?? "Error");
-          setStatus(`❌ ${msg}`);
-          return;
-        }
-        const data = await res.json();
-        const count = data.extracted?.exercises?.length ?? 0;
-        setStatus(
-          count > 0
-            ? `✅ ${count} ejercicio${count > 1 ? "s" : ""} registrado${count > 1 ? "s" : ""}`
-            : "✅ Audio guardado (no se detectaron ejercicios)"
-        );
-        onResult?.(data);
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : "Error al procesar el audio";
-        setStatus(`❌ ${msg}`);
-      }
+  async function submitText(content: string) {
+    setError(null);
+    setResult(null);
+    const res = await fetch("/api/input", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "text", content }),
     });
-  }
-
-  async function handlePhoto(file: File) {
-    setStatus("Subiendo imagen...");
-    try {
-      const { storageKey, publicUrl: storageUrl } = await uploadMedia(file, "image");
-      setStatus("Analizando imagen con IA...");
-
-      const res = await fetch("/api/input", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "image", storageUrl, storageKey, mimeType: file.type }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setStatus(`❌ ${err.error ?? "Error al procesar la imagen"}`);
-        return;
-      }
-      const data = await res.json();
-      setStatus("✅ Imagen analizada correctamente");
-      onResult?.(data);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Error al procesar la imagen";
-      setStatus(`❌ ${msg}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(typeof err.error === "string" ? err.error : "Error del servidor");
     }
+    return res.json() as Promise<RecordResult>;
   }
 
   async function handleText(e: React.FormEvent) {
     e.preventDefault();
     if (!textInput.trim()) return;
-
-    setStatus("Procesando...");
     startTransition(async () => {
       try {
-        const res = await fetch("/api/input", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "text", content: textInput }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          setStatus(`❌ Error: ${err.error ?? res.statusText}`);
-          return;
-        }
-        const data = await res.json();
+        const data = await submitText(textInput);
         setTextInput("");
-        const count = data.extracted?.exercises?.length ?? 0;
-        setStatus(
-          count > 0
-            ? `✅ ${count} ejercicio${count > 1 ? "s" : ""} registrado${count > 1 ? "s" : ""}`
-            : "✅ Texto guardado (no se detectaron ejercicios)"
-        );
+        setResult(data);
         onResult?.(data);
-      } catch {
-        setStatus("❌ Error al guardar el registro");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error desconocido");
       }
     });
   }
 
-  const tabs: { id: Tab; label: string; emoji: string }[] = [
-    { id: "audio", label: "Voz", emoji: "🎙️" },
-    { id: "photo", label: "Foto", emoji: "📸" },
-    { id: "text", label: "Texto", emoji: "✏️" },
-  ];
+  async function handleAudio(transcript: string) {
+    if (!transcript.trim()) return;
+    setError(null);
+    setResult(null);
+    startTransition(async () => {
+      try {
+        const data = await submitText(transcript);
+        setResult(data);
+        onResult?.(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al procesar el audio");
+      }
+    });
+  }
+
+  async function handlePhoto(file: File) {
+    setError(null);
+    setResult(null);
+    try {
+      const { storageKey, publicUrl: storageUrl } = await uploadMedia(file, "image");
+      const res = await fetch("/api/input", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "image", storageUrl, storageKey, mimeType: file.type }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setError(typeof err.error === "string" ? err.error : JSON.stringify(err.error ?? "Error"));
+        return;
+      }
+      const data = await res.json();
+      setResult(data);
+      onResult?.(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al procesar la imagen");
+    }
+  }
+
+  const detectedExercises = result?.extracted?.exercises ?? [];
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-sm mx-auto">
+    <div className="flex flex-col gap-5">
       {/* Tab selector */}
-      <div className="flex rounded-xl bg-zinc-900 p-1 gap-1">
-        {tabs.map((t) => (
+      <div className="flex items-center gap-1 bg-slate-100 rounded-2xl p-1">
+        {TABS.map((t) => (
           <button
             key={t.id}
-            onClick={() => setTab(t.id)}
+            onClick={() => { setTab(t.id); setResult(null); setError(null); }}
             className={cn(
-              "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all",
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
               tab === t.id
-                ? "bg-indigo-600 text-white shadow"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
             )}
           >
-            {t.emoji} {t.label}
+            {t.icon}
+            {t.label}
           </button>
         ))}
       </div>
 
-      {/* Content area */}
-      <div className="flex flex-col items-center gap-4 min-h-[160px] justify-center">
-        {tab === "audio" && (
-          <AudioRecorder onRecorded={handleAudio} disabled={isPending} />
-        )}
-
-        {tab === "photo" && (
-          <PhotoUpload onSelected={handlePhoto} disabled={isPending} />
-        )}
-
-        {tab === "text" && (
-          <form onSubmit={handleText} className="w-full flex flex-col gap-3">
-            <textarea
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              placeholder="Ej: hice 4 series de 10 en press banca con 80 kg, luego 3×12 de curl con 15 kg..."
-              rows={5}
-              className={cn(
-                "w-full rounded-xl bg-zinc-900 border border-zinc-700",
-                "px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-500",
-                "resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              )}
-              disabled={isPending}
-            />
-            <button
-              type="submit"
-              disabled={isPending || !textInput.trim()}
-              className={cn(
-                "w-full py-3 rounded-xl font-semibold text-sm transition-all",
-                "bg-indigo-600 text-white hover:bg-indigo-500",
-                "disabled:opacity-40 disabled:cursor-not-allowed"
-              )}
-            >
-              {isPending ? "Guardando..." : "Guardar registro"}
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* Status message */}
-      {status && (
-        <div
-          className={cn(
-            "text-center text-sm rounded-lg px-4 py-2",
-            status.startsWith("✅")
-              ? "bg-emerald-900/50 text-emerald-400"
-              : status.startsWith("❌")
-              ? "bg-red-900/50 text-red-400"
-              : "bg-zinc-800 text-zinc-300"
-          )}
-        >
-          {status}
+      {/* Detected exercises */}
+      {detectedExercises.length > 0 && (
+        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
+          <p className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5 mb-2.5">
+            <Sparkles size={12} />
+            FitAI detectó
+          </p>
+          <div className="flex flex-col gap-2">
+            {detectedExercises.map((ex, i) => {
+              const setCount = ex.sets.length;
+              const firstSet = ex.sets[0];
+              const summary = [
+                firstSet?.reps ? `${setCount}×${firstSet.reps}` : `${setCount} series`,
+                firstSet?.weight_kg ? `${firstSet.weight_kg} kg` : null,
+                firstSet?.duration_sec ? `${Math.round(firstSet.duration_sec / 60)} min` : null,
+              ].filter(Boolean).join(" · ");
+              return (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-sm text-slate-800 font-medium">{ex.alias}</span>
+                  <span className="text-sm text-slate-500">{summary}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      {/* Tab content */}
+      {tab === "text" && (
+        <form onSubmit={handleText} className="flex flex-col gap-4">
+          <textarea
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            placeholder="Hice 4 series de press banca con 60 kg, luego 3 de sentadilla a 80 y cardio 15 min..."
+            rows={5}
+            disabled={isPending}
+            className="w-full rounded-2xl bg-white border border-slate-200 px-4 py-3.5 text-sm text-slate-900 placeholder:text-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent disabled:opacity-50 shadow-sm leading-relaxed"
+          />
+          <button
+            type="submit"
+            disabled={isPending || !textInput.trim()}
+            className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors disabled:opacity-40 shadow-sm shadow-emerald-200"
+          >
+            {isPending ? "Guardando..." : "Guardar entrenamiento"}
+          </button>
+        </form>
+      )}
+
+      {tab === "audio" && (
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+          <AudioRecorder onRecorded={handleAudio} disabled={isPending} />
+        </div>
+      )}
+
+      {tab === "photo" && (
+        <PhotoUpload onSelected={handlePhoto} disabled={isPending} />
       )}
     </div>
   );
