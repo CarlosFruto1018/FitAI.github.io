@@ -160,7 +160,7 @@ export default async function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-black text-emerald-600">
-                    {pr.weightKg != null ? `${pr.weightKg} kg` : pr.reps != null ? `${pr.reps} reps` : "—"}
+                    {pr.value}{pr.metric === "weight_kg" ? " kg" : ` ${pr.metric}`}
                   </p>
                 </div>
               </div>
