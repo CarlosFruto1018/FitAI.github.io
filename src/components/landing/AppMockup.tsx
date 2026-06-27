@@ -105,11 +105,12 @@ function ProfileHeader() {
   return (
     <div className="flex items-center justify-between py-1">
       <div>
-        <p className="text-slate-400 text-[10px] font-medium">Buenas noches</p>
-        <p className="text-slate-900 font-bold text-[13px]">Carlos 💪</p>
+        <p className="text-[10px] font-medium" style={{ color: '#94A3B8' }}>Buenas noches</p>
+        <p className="font-bold text-[13px]" style={{ color: '#0F172A' }}>Carlos 💪</p>
       </div>
-      <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-sm shadow-emerald-300">
-        <span className="text-white text-xs font-black">C</span>
+      <div className="w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ background: '#10B981', boxShadow: '0 2px 6px rgba(16,185,129,0.3)' }}>
+        <span className="text-xs font-black" style={{ color: '#FFFFFF' }}>C</span>
       </div>
     </div>
   );
@@ -120,9 +121,10 @@ function StatsRow() {
   return (
     <div className="grid grid-cols-3 gap-2">
       {STATS.map((s) => (
-        <div key={s.label} className="bg-slate-50 border border-slate-100 rounded-2xl p-2 text-center">
-          <p className="text-slate-900 text-[11px] font-bold">{s.value}</p>
-          <p className="text-slate-400 text-[8px] mt-0.5">{s.label}</p>
+        <div key={s.label} className="rounded-2xl p-2 text-center"
+          style={{ background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
+          <p className="text-[11px] font-bold" style={{ color: '#0F172A' }}>{s.value}</p>
+          <p className="text-[8px] mt-0.5" style={{ color: '#94A3B8' }}>{s.label}</p>
         </div>
       ))}
     </div>
@@ -132,28 +134,30 @@ function StatsRow() {
 /** Panel de registro por voz con selector de modo. */
 function RecordPanel() {
   return (
-    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3">
-      <p className="text-slate-400 text-[9px] uppercase tracking-widest font-medium mb-2">
+    <div className="rounded-2xl p-3" style={{ background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
+      <p className="text-[9px] uppercase tracking-widest font-medium mb-2" style={{ color: '#94A3B8' }}>
         Registrar ahora
       </p>
-      <div className="flex gap-1 bg-slate-200/60 rounded-xl p-0.5 mb-3">
+      <div className="flex gap-1 rounded-xl p-0.5 mb-3" style={{ background: 'rgba(148,163,184,0.2)' }}>
         {INPUT_MODES.map((mode, i) => (
           <div
             key={mode}
-            className={`flex-1 py-1 rounded-[10px] text-center text-[9px] font-semibold ${
-              i === 0 ? 'bg-white text-slate-900 shadow-sm shadow-slate-200' : 'text-slate-400'
-            }`}
+            className="flex-1 py-1 rounded-[10px] text-center text-[9px] font-semibold"
+            style={i === 0
+              ? { background: '#FFFFFF', color: '#0F172A', boxShadow: '0 1px 2px rgba(148,163,184,0.2)' }
+              : { color: '#94A3B8' }}
           >
             {mode}
           </div>
         ))}
       </div>
       <div className="flex justify-center py-1.5">
-        <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center shadow-md shadow-red-200">
-          <Mic size={15} className="text-white" />
+        <div className="w-11 h-11 rounded-full flex items-center justify-center"
+          style={{ background: '#EF4444', boxShadow: '0 4px 8px rgba(239,68,68,0.3)' }}>
+          <Mic size={15} color="#FFFFFF" />
         </div>
       </div>
-      <p className="text-center text-slate-400 text-[9px] mt-2 font-medium">Escuchando…</p>
+      <p className="text-center text-[9px] mt-2 font-medium" style={{ color: '#94A3B8' }}>Escuchando…</p>
     </div>
   );
 }
@@ -161,15 +165,16 @@ function RecordPanel() {
 /** Ejercicios de la última sesión. */
 function LastSessionCard() {
   return (
-    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3">
+    <div className="rounded-2xl p-3" style={{ background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-slate-900 text-[11px] font-semibold">Última sesión</p>
-        <span className="text-emerald-500 text-[9px] font-medium">Hoy</span>
+        <p className="text-[11px] font-semibold" style={{ color: '#0F172A' }}>Última sesión</p>
+        <span className="text-[9px] font-medium" style={{ color: '#10B981' }}>Hoy</span>
       </div>
       {EXERCISES.map((exercise) => (
-        <div key={exercise} className="flex items-center gap-2 py-[5px] border-t border-slate-100 first:border-0">
-          <div className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
-          <p className="text-slate-600 text-[9px]">{exercise}</p>
+        <div key={exercise} className="flex items-center gap-2 py-[5px]"
+          style={{ borderTop: '1px solid #F1F5F9' }}>
+          <div className="w-1 h-1 rounded-full shrink-0" style={{ background: '#34D399' }} />
+          <p className="text-[9px]" style={{ color: '#475569' }}>{exercise}</p>
         </div>
       ))}
     </div>
@@ -179,11 +184,12 @@ function LastSessionCard() {
 /** Notificación de récord personal. */
 function PersonalRecordBadge() {
   return (
-    <div className="bg-amber-50 border border-amber-100 rounded-2xl p-2.5 flex items-center gap-2">
+    <div className="rounded-2xl p-2.5 flex items-center gap-2"
+      style={{ background: '#FFFBEB', border: '1px solid #FEF3C7' }}>
       <span className="text-base">🏆</span>
       <div>
-        <p className="text-amber-600 text-[10px] font-bold">¡Nuevo récord personal!</p>
-        <p className="text-slate-400 text-[9px]">Sentadilla · 105 kg</p>
+        <p className="text-[10px] font-bold" style={{ color: '#D97706' }}>¡Nuevo récord personal!</p>
+        <p className="text-[9px]" style={{ color: '#94A3B8' }}>Sentadilla · 105 kg</p>
       </div>
     </div>
   );
@@ -227,10 +233,10 @@ export function AppMockup() {
         <div aria-hidden className="absolute -right-[2px] top-[128px] w-[2px] h-[56px] rounded-r-full"
           style={{ background: 'linear-gradient(270deg,#3A3A3C,#48484A,#3A3A3C)' }} />
 
-        {/* ── Pantalla ── */}
+        {/* ── Pantalla — forzado light-mode para ser inmune al dark-mode del SO ── */}
         <div
-          className="overflow-hidden bg-white"
-          style={{ borderRadius: '38px' }}
+          className="overflow-hidden"
+          style={{ borderRadius: '38px', background: '#FFFFFF', colorScheme: 'light' }}
         >
           <StatusBar />
 
