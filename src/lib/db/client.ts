@@ -3,18 +3,9 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 
 const dbUrl = process.env.DATABASE_URL;
-console.log("[db] DATABASE_URL set:", !!dbUrl, "| starts with:", dbUrl?.slice(0, 30));
+console.log("[db] DATABASE_URL set:", !!dbUrl, "| prefix:", dbUrl?.slice(0, 40));
 
-const sql = neon(dbUrl!, {
-  fetchFunction: async (url: string, init: RequestInit) => {
-    const res = await fetch(url, init);
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("[db] Neon HTTP error:", res.status, text.slice(0, 300));
-    }
-    return res;
-  },
-});
+const sql = neon(dbUrl!);
 
 export const db = drizzle(sql, { schema });
 
