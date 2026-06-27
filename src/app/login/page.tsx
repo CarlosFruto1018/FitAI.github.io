@@ -1,5 +1,5 @@
 import { signIn } from "@/lib/auth";
-import { Mic, Camera, TrendingUp, MessageCircle, Zap, Shield } from "lucide-react";
+import { Mic, Camera, TrendingUp, MessageCircle, Zap, Shield, CheckCircle } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -10,198 +10,197 @@ const GoogleIcon = () => (
   </svg>
 );
 
-/* ── Mini UI mockups ── */
-function DashboardMockup() {
+function SignInButton() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <div className="h-2 w-16 bg-white/20 rounded-full mb-1.5" />
-          <div className="h-3.5 w-24 bg-white/60 rounded-full" />
-        </div>
-        <div className="w-7 h-7 rounded-full bg-emerald-500/80" />
-      </div>
-      {/* Fake hero card */}
-      <div className="bg-white/10 rounded-xl p-3 flex items-center gap-3 mb-3">
-        <div className="w-14 h-14 rounded-full border-4 border-emerald-400/60 flex items-center justify-center">
-          <span className="text-white font-black text-sm">80%</span>
-        </div>
-        <div className="flex-1">
-          <div className="h-2 w-20 bg-white/20 rounded-full mb-2" />
-          <div className="h-3 w-14 bg-white/60 rounded-full mb-1" />
-          <div className="h-2 w-24 bg-white/20 rounded-full" />
-        </div>
-      </div>
-      {/* Fake stat row */}
-      <div className="grid grid-cols-3 gap-1.5">
-        {["12.4k kg", "7 días", "3 PRs"].map((v) => (
-          <div key={v} className="bg-white/10 rounded-lg py-2 text-center">
-            <p className="text-white text-xs font-bold leading-none">{v}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <form
+      action={async () => {
+        "use server";
+        await signIn("google", { redirectTo: "/dashboard" });
+      }}
+    >
+      <button
+        type="submit"
+        className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold py-4 px-8 rounded-2xl transition-all shadow-lg text-sm"
+      >
+        <GoogleIcon />
+        Continuar con Google — es gratis
+      </button>
+    </form>
   );
 }
 
-function RecordMockup() {
+function AppMockup() {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-      <div className="h-3 w-20 bg-white/60 rounded-full mb-3" />
-      {/* Tabs */}
-      <div className="flex gap-1 bg-white/10 rounded-xl p-1 mb-3">
-        {["Texto", "Voz", "Foto"].map((t, i) => (
-          <div key={t} className={`flex-1 py-1.5 rounded-lg text-center text-[10px] font-medium ${i === 1 ? "bg-white text-slate-900" : "text-white/50"}`}>
-            {t}
+    <div className="relative w-full max-w-xs mx-auto">
+      {/* Phone frame */}
+      <div className="relative bg-slate-900 rounded-[2.5rem] p-2 shadow-2xl shadow-black/50 ring-1 ring-white/10">
+        <div className="bg-slate-950 rounded-[2rem] overflow-hidden">
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <span className="text-white text-[10px] font-medium">9:41</span>
+            <div className="w-20 h-4 bg-slate-900 rounded-full" />
+            <div className="flex gap-1 items-center">
+              <div className="w-3 h-2 bg-white/60 rounded-sm" />
+              <div className="w-1 h-1 bg-white/60 rounded-full" />
+            </div>
           </div>
-        ))}
-      </div>
-      {/* Mic button */}
-      <div className="flex flex-col items-center gap-2 py-2">
-        <div className="w-14 h-14 rounded-full bg-red-500/80 flex items-center justify-center shadow-lg shadow-red-500/30">
-          <Mic size={20} className="text-white" />
-        </div>
-        <div className="h-2 w-28 bg-white/20 rounded-full" />
-      </div>
-      {/* Detected */}
-      <div className="bg-emerald-500/20 border border-emerald-400/30 rounded-xl px-3 py-2 mt-1">
-        <div className="h-2 w-16 bg-emerald-400/60 rounded-full mb-2" />
-        {["Press banca · 4×10 · 70 kg", "Sentadilla · 3×8 · 90 kg"].map((e) => (
-          <div key={e} className="h-2 w-full bg-white/20 rounded-full mb-1.5 last:mb-0" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function ChatMockup() {
-  return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-      <div className="h-3 w-24 bg-white/60 rounded-full mb-3" />
-      <div className="flex flex-col gap-2 mb-3">
-        <div className="self-start flex gap-2 items-start">
-          <div className="w-5 h-5 rounded-lg bg-slate-700 shrink-0" />
-          <div className="bg-white/10 rounded-xl rounded-tl-sm px-3 py-2 max-w-[80%]">
-            <div className="h-2 w-36 bg-white/40 rounded-full mb-1" />
-            <div className="h-2 w-24 bg-white/25 rounded-full" />
-          </div>
-        </div>
-        <div className="self-end bg-slate-700/80 rounded-xl rounded-tr-sm px-3 py-2 max-w-[70%]">
-          <div className="h-2 w-28 bg-white/50 rounded-full" />
-        </div>
-        <div className="self-start flex gap-2 items-start">
-          <div className="w-5 h-5 rounded-lg bg-slate-700 shrink-0" />
-          <div className="bg-emerald-500/20 border border-emerald-400/30 rounded-xl rounded-tl-sm px-3 py-2 max-w-[80%]">
-            <div className="h-2 w-32 bg-white/40 rounded-full mb-1" />
-            <div className="h-2 w-20 bg-white/25 rounded-full" />
+          {/* App content */}
+          <div className="px-4 pb-6 pt-2 space-y-3">
+            {/* Header */}
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <p className="text-slate-400 text-[10px]">Buenas noches</p>
+                <p className="text-white font-bold text-sm">Carlos 💪</p>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+                <span className="text-white text-xs font-black">C</span>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Esta semana", value: "4 días" },
+                { label: "Volumen", value: "14.2k kg" },
+                { label: "Racha", value: "12 🔥" },
+              ].map((s) => (
+                <div key={s.label} className="bg-slate-800 rounded-xl p-2 text-center">
+                  <p className="text-white text-[11px] font-bold">{s.value}</p>
+                  <p className="text-slate-500 text-[8px] mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Record input */}
+            <div className="bg-slate-800 rounded-2xl p-3">
+              <p className="text-slate-400 text-[9px] uppercase tracking-wide mb-2">Registrar ahora</p>
+              <div className="flex gap-1 bg-slate-700 rounded-xl p-1 mb-3">
+                {["Voz", "Foto", "Texto"].map((t, i) => (
+                  <div key={t} className={`flex-1 py-1 rounded-lg text-center text-[9px] font-medium ${i === 0 ? "bg-emerald-500 text-white" : "text-slate-400"}`}>
+                    {t}
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center py-1">
+                <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/40">
+                  <Mic size={14} className="text-white" />
+                </div>
+              </div>
+              <p className="text-center text-slate-500 text-[9px] mt-2">Escuchando...</p>
+            </div>
+
+            {/* Recent session */}
+            <div className="bg-slate-800 rounded-2xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-white text-[11px] font-semibold">Última sesión</p>
+                <span className="text-emerald-400 text-[9px]">Hoy</span>
+              </div>
+              {["Press banca · 4×10 · 80kg", "Sentadilla · 3×8 · 100kg", "Peso muerto · 3×5 · 120kg"].map((e) => (
+                <div key={e} className="flex items-center gap-2 py-1 border-t border-slate-700/50 first:border-0">
+                  <div className="w-1 h-1 rounded-full bg-emerald-400 shrink-0" />
+                  <p className="text-slate-300 text-[9px]">{e}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* PR badge */}
+            <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-2.5 flex items-center gap-2">
+              <span className="text-lg">🏆</span>
+              <div>
+                <p className="text-amber-400 text-[10px] font-bold">¡Nuevo récord personal!</p>
+                <p className="text-slate-400 text-[9px]">Sentadilla · 105 kg</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/* Input */}
-      <div className="flex gap-2">
-        <div className="flex-1 h-8 bg-white/10 rounded-xl border border-white/10" />
-        <div className="w-8 h-8 rounded-xl bg-slate-700 shrink-0" />
-      </div>
+
+      {/* Glow behind phone */}
+      <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-3xl -z-10 scale-75" />
     </div>
   );
 }
 
 const FEATURES = [
-  { icon: Mic, title: "Voz natural", desc: "Habla y FitAI entiende tus series, pesos y reps automáticamente.", color: "text-red-400" },
-  { icon: Camera, title: "Foto del gym", desc: "Sube una foto de la pizarra o máquina y la IA lo registra por ti.", color: "text-blue-400" },
-  { icon: TrendingUp, title: "Progresión real", desc: "Gráficas de carga por ejercicio. Detecta tus récords al instante.", color: "text-emerald-400" },
-  { icon: MessageCircle, title: "Pregúntale a tu data", desc: "«¿Cuánto hice en sentadilla el lunes?» — respuesta inmediata.", color: "text-violet-400" },
-  { icon: Zap, title: "Instantáneo", desc: "Sin formularios ni menús. En 5 segundos tu sesión está guardada.", color: "text-yellow-400" },
-  { icon: Shield, title: "Solo tuyo", desc: "Tus datos siempre privados, en tu cuenta personal.", color: "text-slate-400" },
+  {
+    icon: Mic,
+    color: "bg-red-500/10 text-red-400",
+    border: "border-red-500/20",
+    title: "Registro por voz",
+    desc: "Di «4 series de 10 en press banca con 80 kilos» y FitAI lo guarda automáticamente. Sin tocar la pantalla.",
+  },
+  {
+    icon: Camera,
+    color: "bg-blue-500/10 text-blue-400",
+    border: "border-blue-500/20",
+    title: "Sube una foto",
+    desc: "Foto de la pizarra del box, la pantalla de la máquina cardio o tu reloj — la IA lee los números y los registra.",
+  },
+  {
+    icon: TrendingUp,
+    color: "bg-emerald-500/10 text-emerald-400",
+    border: "border-emerald-500/20",
+    title: "Progresión real",
+    desc: "Gráficas de carga semana a semana. FitAI detecta tus récords personales al instante y te lo notifica.",
+  },
+  {
+    icon: MessageCircle,
+    color: "bg-violet-500/10 text-violet-400",
+    border: "border-violet-500/20",
+    title: "Pregúntale a tu data",
+    desc: "«¿Cuánto hice en sentadilla el lunes?» — respuesta inmediata basada en tu historial real.",
+  },
+  {
+    icon: Zap,
+    color: "bg-yellow-500/10 text-yellow-400",
+    border: "border-yellow-500/20",
+    title: "5 segundos por set",
+    desc: "Sin formularios, sin menús, sin escribir nada. El registro más rápido que vas a encontrar.",
+  },
+  {
+    icon: Shield,
+    color: "bg-slate-500/10 text-slate-400",
+    border: "border-slate-500/20",
+    title: "Solo tuyo",
+    desc: "Tus datos siempre privados. Nunca compartidos. Solo tú tienes acceso a tu historial.",
+  },
+];
+
+const STEPS = [
+  {
+    num: "01",
+    title: "Entra al gym",
+    desc: "Abre FitAI en tu móvil antes de empezar. No necesitas instalar nada — funciona desde el navegador.",
+    detail: "PWA • Sin instalación • Offline-first",
+  },
+  {
+    num: "02",
+    title: "Registra como quieras",
+    desc: "Voz, foto o texto — lo que sea más cómodo en ese momento. FitAI entiende español natural.",
+    detail: "«Hice 4 de 10 en banca con 80»",
+  },
+  {
+    num: "03",
+    title: "FitAI hace el resto",
+    desc: "Extrae ejercicios, series, pesos y reps. Detecta PRs, actualiza tu progreso y guarda todo.",
+    detail: "IA · Tiempo real · Sin errores",
+  },
 ];
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-slate-950 text-white">
 
-      {/* ── LEFT / HERO ── */}
-      <div className="relative lg:w-[58%] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col justify-between p-8 lg:p-12 overflow-hidden">
-        {/* Background glows */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Logo */}
-        <div className="relative flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <span className="text-white font-black text-sm">F</span>
-          </div>
-          <span className="text-white font-black text-lg tracking-tight">FitAI</span>
-        </div>
-
-        {/* Hero text */}
-        <div className="relative my-10 lg:my-0">
-          <p className="text-emerald-400 text-sm font-semibold tracking-wide uppercase mb-4">Tu entrenador inteligente</p>
-          <h1 className="text-4xl lg:text-5xl font-black text-white leading-[1.1] mb-4">
-            Registra tu gym<br />
-            <span className="text-emerald-400">en segundos.</span>
-          </h1>
-          <p className="text-slate-400 text-base leading-relaxed max-w-md">
-            Habla, saca una foto o escribe. FitAI extrae tus series, pesos y reps automáticamente — y te muestra cómo progresas.
-          </p>
-
-          {/* App mockups — visible en desktop */}
-          <div className="hidden lg:grid grid-cols-3 gap-3 mt-10">
-            <DashboardMockup />
-            <RecordMockup />
-            <ChatMockup />
-          </div>
-
-          {/* Features grid — visible en mobile */}
-          <div className="grid grid-cols-2 gap-3 mt-8 lg:hidden">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="bg-white/5 border border-white/10 rounded-xl p-3">
-                <f.icon size={16} className={`${f.color} mb-2`} />
-                <p className="text-white text-xs font-semibold mb-0.5">{f.title}</p>
-                <p className="text-slate-400 text-[11px] leading-snug">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Features grid — desktop bottom */}
-        <div className="relative hidden lg:grid grid-cols-3 gap-3 mt-8">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="flex items-start gap-2.5">
-              <f.icon size={15} className={`${f.color} mt-0.5 shrink-0`} />
-              <div>
-                <p className="text-white text-xs font-semibold">{f.title}</p>
-                <p className="text-slate-500 text-[11px] leading-snug mt-0.5">{f.desc}</p>
-              </div>
+      {/* ── NAV ── */}
+      <nav className="sticky top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <span className="text-white font-black text-xs">F</span>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── RIGHT / LOGIN ── */}
-      <div className="lg:w-[42%] flex flex-col items-center justify-center px-8 py-12 lg:px-14">
-        <div className="w-full max-w-sm flex flex-col gap-6">
-
-          {/* Heading */}
-          <div>
-            <h2 className="text-2xl font-black text-slate-900">Empieza gratis</h2>
-            <p className="text-slate-500 text-sm mt-1">Sin tarjeta de crédito. Listo en 10 segundos.</p>
+            <span className="font-black text-base tracking-tight">FitAI</span>
           </div>
-
-          {/* Social proof */}
-          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
-            <div className="flex -space-x-2">
-              {["bg-emerald-500", "bg-indigo-500", "bg-orange-500", "bg-rose-500"].map((c, i) => (
-                <div key={i} className={`w-7 h-7 rounded-full ${c} border-2 border-white flex items-center justify-center`}>
-                  <span className="text-white text-[9px] font-bold">{["C", "M", "A", "L"][i]}</span>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-slate-600">
-              <span className="font-semibold text-emerald-700">+120 atletas</span> ya registran sus entrenos con FitAI
-            </p>
-          </div>
-
-          {/* Sign in */}
           <form
             action={async () => {
               "use server";
@@ -210,44 +209,255 @@ export default function LoginPage() {
           >
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-700 text-white font-semibold py-4 rounded-2xl transition-colors shadow-sm text-sm"
+              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
             >
-              <GoogleIcon />
-              Continuar con Google
+              Entrar gratis
             </button>
           </form>
+        </div>
+      </nav>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-200" />
-            <p className="text-xs text-slate-400">¿Cómo funciona?</p>
-            <div className="flex-1 h-px bg-slate-200" />
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden">
+        {/* Background glows */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 left-1/4 w-64 h-64 bg-indigo-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-6 pt-20 pb-16 lg:pt-28 lg:pb-24">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            {/* Left text */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-emerald-400 text-xs font-semibold">Beta gratuita · Sin tarjeta</span>
+              </div>
+
+              <h1 className="text-5xl lg:text-6xl font-black leading-[1.05] mb-6">
+                Registra tu gym
+                <br />
+                <span className="text-emerald-400">en 5 segundos.</span>
+              </h1>
+
+              <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+                Habla, saca una foto o escribe. FitAI extrae tus series, pesos y reps con IA — y te muestra exactamente cómo progresas semana a semana.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+                <form
+                  action={async () => {
+                    "use server";
+                    await signIn("google", { redirectTo: "/dashboard" });
+                  }}
+                >
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 px-8 rounded-2xl transition-all shadow-xl text-sm w-full sm:w-auto"
+                  >
+                    <GoogleIcon />
+                    Empezar gratis con Google
+                  </button>
+                </form>
+              </div>
+
+              <div className="flex items-center gap-4 justify-center lg:justify-start">
+                {[
+                  "Sin instalación",
+                  "Datos privados",
+                  "Cancela cuando quieras",
+                ].map((t) => (
+                  <div key={t} className="flex items-center gap-1.5">
+                    <CheckCircle size={12} className="text-emerald-400 shrink-0" />
+                    <span className="text-slate-400 text-xs">{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — phone mockup */}
+            <div className="flex-shrink-0 w-full lg:w-auto">
+              <AppMockup />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOCIAL PROOF BAR ── */}
+      <div className="border-y border-white/5 bg-white/2">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-12">
+          {[
+            { value: "+120", label: "atletas activos" },
+            { value: "5 seg", label: "promedio por set" },
+            { value: "3 modos", label: "voz, foto y texto" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <span className="text-white font-black text-xl">{s.value}</span>
+              <span className="text-slate-500 text-sm ml-2">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── FEATURES ── */}
+      <section className="max-w-6xl mx-auto px-6 py-20 lg:py-28">
+        <div className="text-center mb-14">
+          <p className="text-emerald-400 text-sm font-semibold uppercase tracking-wide mb-3">Funcionalidades</p>
+          <h2 className="text-3xl lg:text-4xl font-black mb-4">Todo lo que necesitas,<br />nada de lo que no.</h2>
+          <p className="text-slate-400 max-w-md mx-auto">Diseñado para que pases menos tiempo en el teléfono y más tiempo levantando.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((f) => (
+            <div key={f.title} className={`bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 transition-all group`}>
+              <div className={`w-10 h-10 rounded-xl ${f.color} border ${f.border} flex items-center justify-center mb-4`}>
+                <f.icon size={18} />
+              </div>
+              <h3 className="text-white font-bold text-base mb-2">{f.title}</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section className="bg-slate-900/50 border-y border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 py-20 lg:py-28">
+          <div className="text-center mb-14">
+            <p className="text-emerald-400 text-sm font-semibold uppercase tracking-wide mb-3">Cómo funciona</p>
+            <h2 className="text-3xl lg:text-4xl font-black">Tres pasos. Eso es todo.</h2>
           </div>
 
-          {/* Steps */}
-          <div className="flex flex-col gap-3">
-            {[
-              { step: "1", title: "Entra al gym", desc: "Abre FitAI antes o durante tu sesión." },
-              { step: "2", title: "Registra como quieras", desc: "Voz, foto o texto — lo que sea más cómodo en el momento." },
-              { step: "3", title: "FitAI hace el resto", desc: "Extrae los datos, detecta PRs y actualiza tu progreso." },
-            ].map((s) => (
-              <div key={s.step} className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
-                  {s.step}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
+            {/* Connector line — desktop only */}
+            <div className="hidden lg:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+
+            {STEPS.map((s, i) => (
+              <div key={s.num} className="relative flex flex-col items-center lg:items-start text-center lg:text-left">
+                <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-5 relative z-10">
+                  <span className="text-2xl font-black text-slate-600">{s.num}</span>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{s.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
-                </div>
+                <h3 className="text-white font-bold text-lg mb-2">{s.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-3">{s.desc}</p>
+                <span className="inline-block bg-slate-800 border border-slate-700 text-slate-500 text-xs px-3 py-1 rounded-full font-mono">
+                  {s.detail}
+                </span>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <p className="text-[11px] text-slate-400 text-center">
+      {/* ── TESTIMONIALS ── */}
+      <section className="max-w-6xl mx-auto px-6 py-20 lg:py-28">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black mb-2">Lo que dicen los usuarios</h2>
+          <p className="text-slate-400 text-sm">Beta gratuita · Feedback real</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              name: "Miguel R.",
+              role: "Powerlifter",
+              avatar: "M",
+              color: "bg-indigo-500",
+              text: "Me cambió la vida en el gym. Antes perdía 5 minutos buscando la app para anotar. Ahora digo «3 de 5 en peso muerto con 150» y listo.",
+            },
+            {
+              name: "Ana C.",
+              role: "CrossFitter",
+              avatar: "A",
+              color: "bg-rose-500",
+              text: "La función de foto es una locura. Saco foto al marcador del WOD y lo registra todo solo. Nunca había visto algo así.",
+            },
+            {
+              name: "Luis P.",
+              role: "Gym bro",
+              avatar: "L",
+              color: "bg-amber-500",
+              text: "Llevaba años buscando algo así. Simple, rápido, en español. Los PRs detectados automáticamente son un toque increíble.",
+            },
+          ].map((t) => (
+            <div key={t.name} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center`}>
+                  <span className="text-white text-sm font-bold">{t.avatar}</span>
+                </div>
+                <div>
+                  <p className="text-white text-sm font-semibold">{t.name}</p>
+                  <p className="text-slate-500 text-xs">{t.role}</p>
+                </div>
+                <div className="ml-auto flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="text-amber-400 text-xs">★</span>
+                  ))}
+                </div>
+              </div>
+              <p className="text-slate-400 text-sm leading-relaxed">"{t.text}"</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FINAL CTA / LOGIN ── */}
+      <section className="relative overflow-hidden border-t border-slate-800">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-indigo-500/5 pointer-events-none" />
+        <div className="max-w-lg mx-auto px-6 py-20 lg:py-28 text-center relative">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30 mx-auto mb-6">
+            <span className="text-white font-black text-xl">F</span>
+          </div>
+
+          <h2 className="text-4xl font-black mb-4">
+            Empieza hoy.<br />
+            <span className="text-emerald-400">Es gratis.</span>
+          </h2>
+          <p className="text-slate-400 mb-8 leading-relaxed">
+            Sin tarjeta de crédito. Sin instalación. En 10 segundos tienes tu cuenta lista y puedes registrar tu primera sesión.
+          </p>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col gap-4">
+            <SignInButton />
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-slate-800" />
+              <span className="text-slate-600 text-xs">incluye</span>
+              <div className="flex-1 h-px bg-slate-800" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                "Registro por voz",
+                "Registro por foto",
+                "Historial ilimitado",
+                "Detección de PRs",
+                "Chat con tu data",
+                "Sin anuncios",
+              ].map((f) => (
+                <div key={f} className="flex items-center gap-2">
+                  <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                  <span className="text-slate-400 text-xs">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-slate-600 text-xs mt-6">
             Al continuar aceptas los Términos de Servicio y Política de Privacidad.
           </p>
         </div>
-      </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-md bg-emerald-500 flex items-center justify-center">
+              <span className="text-white font-black text-[9px]">F</span>
+            </div>
+            <span className="text-slate-500 text-xs">FitAI · 2026</span>
+          </div>
+          <p className="text-slate-600 text-xs">Hecho con ❤️ para atletas</p>
+        </div>
+      </footer>
     </div>
   );
 }
