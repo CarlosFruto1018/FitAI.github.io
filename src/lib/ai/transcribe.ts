@@ -1,12 +1,11 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 export async function transcribeAudio(
   audioBuffer: Buffer,
   mimeType: string
 ): Promise<string> {
   // Whisper accepts these formats; WebM/Opus from browsers works natively
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const extension = mimeType.includes("webm")
     ? "webm"
     : mimeType.includes("mp4") || mimeType.includes("m4a")
